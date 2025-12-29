@@ -5,6 +5,7 @@ These instructions guide GitHub Copilot for this repo. Prioritize correctness, m
 ## Stack & Defaults
 - Framework: **Next.js (App Router)** using `app/`
 - Language: **TypeScript everywhere** (strict). Avoid `any`.
+- Package Manager: **pnpm** (always use pnpm for commands)
 - UI: **Tailwind CSS + shadcn/ui** (lean on `components/ui`)
 - Auth: **NextAuth**
 - DB: **Postgres + Drizzle ORM**
@@ -40,21 +41,20 @@ These instructions guide GitHub Copilot for this repo. Prioritize correctness, m
 - `types/` — truly global types only
 
 ### Feature-first organization
-- Keep feature-specific code **inside the feature route segment** (or a dedicated feature folder).
-- Prefer route groups for organization: `app/(feature)/...`
+- Keep feature-specific code **inside the `src/features` folder**.
 - Typical feature layout:
-  - `app/(feature)/<feature>/page.tsx` (minimal logic)
-  - `app/(feature)/<feature>/components/` (feature UI)
-  - `app/(feature)/<feature>/lib/` (feature helpers)
-  - `app/(feature)/<feature>/actions/` (server actions if used)
-  - `app/(feature)/<feature>/queries/` + `mutations/` (db interactions)
-  - `app/(feature)/<feature>/constants.ts` (feature-only constants)
-  - `app/(feature)/<feature>/types.ts` (feature-only types)
+  - `src/features/<feature>/components/` (feature UI)
+  - `src/features/<feature>/lib/` (feature helpers)
+  - `src/features/<feature>/actions/` (server actions if used)
+  - `src/features/<feature>/queries/` + `mutations/` (db interactions)
+  - `src/features/<feature>/constants.ts` (feature-only constants)
+  - `src/features/<feature>/types.ts` (feature-only types)
 
-**Rule of thumb:** if only one feature uses it, keep it local to that feature.
+**Rule of thumb:** if only one feature uses it, keep it local to that feature in `src/features`.
 
 ## UI & Styling Conventions
 - Use **shadcn/ui** components first; compose them into shared components only when reusable.
+- **NEVER modify default shadcn/ui components** in `components/ui/`. If you need to customize them, wrap them or create a new component that composes them.
 - Tailwind:
   - Prefer `cn()` utility for conditional classes.
   - Keep class lists readable; extract to components when it gets unwieldy.
