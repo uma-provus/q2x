@@ -17,7 +17,7 @@
 - `id` (uuid, pk)
 - `name` (text)
 - `slug` (text, unique)
-- `catalog_schema` (jsonb, nullable) - Defines custom fields for catalog items (label, type, required)
+- `catalog_schema` (jsonb, nullable) - Defines custom fields (key, label, type, required). Key is immutable, Label is mutable.
 - `created_at`, `updated_at`
 
 ### users
