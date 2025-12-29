@@ -50,17 +50,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
-                // @ts-expect-error
                 token.tenantId = user.tenantId;
             }
             return token;
         },
         async session({ session, token }) {
             if (token) {
-                // @ts-expect-error
-                session.user.id = token.id;
-                // @ts-expect-error
-                session.user.tenantId = token.tenantId;
+                session.user.id = token.id as string;
+                session.user.tenantId = token.tenantId as string;
             }
             return session;
         },

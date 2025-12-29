@@ -1,17 +1,20 @@
-"use client"
+"use client";
 
-import * as React from "react"
 import {
-  LayoutDashboard,
   FileText,
-  Users,
-  Settings,
+  LayoutDashboard,
   Package2,
-} from "lucide-react"
-
+  Settings,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import type * as React from "react";
+import { NavUser } from "@/components/layout/nav-user";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -20,12 +23,17 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-} from "@/components/ui/sidebar"
-import { usePathname } from "next/navigation"
-import Link from "next/link"
+} from "@/components/ui/sidebar";
 
-export function SidebarLayout({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const pathname = usePathname()
+export function AppSidebar({
+  tenantName,
+  user,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & {
+  tenantName?: string;
+  user: { name: string; email: string; avatar: string };
+}) {
+  const pathname = usePathname();
 
   const routes = [
     {
@@ -37,25 +45,31 @@ export function SidebarLayout({ ...props }: React.ComponentProps<typeof Sidebar>
     {
       label: "Quotes",
       icon: FileText,
-      href: "/dashboard/quotes",
-      active: pathname.startsWith("/dashboard/quotes"),
+      href: "/quotes",
+      active: pathname.startsWith("/quotes"),
     },
     {
       label: "Customers",
       icon: Users,
-      href: "/dashboard/customers",
-      active: pathname.startsWith("/dashboard/customers"),
+      href: "/customers",
+      active: pathname.startsWith("/customers"),
+    },
+    {
+      label: "Catalogs",
+      icon: Package2,
+      href: "/catalogs",
+      active: pathname.startsWith("/catalogs"),
     },
     {
       label: "Settings",
       icon: Settings,
-      href: "/dashboard/settings",
-      active: pathname.startsWith("/dashboard/settings"),
+      href: "/settings",
+      active: pathname.startsWith("/settings"),
     },
-  ]
+  ];
 
   return (
-    <Sidebar {...props}>
+    <Sidebar variant="inset" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -65,7 +79,7 @@ export function SidebarLayout({ ...props }: React.ComponentProps<typeof Sidebar>
                   <Package2 className="size-4" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold">Q2X</span>
+                  <span className="font-semibold">{tenantName || "Q2X"}</span>
                   <span className="">v1.0.0</span>
                 </div>
               </Link>
@@ -75,14 +89,14 @@ export function SidebarLayout({ ...props }: React.ComponentProps<typeof Sidebar>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Platform</SidebarGroupLabel>
+          <SidebarGroupLabel>Home</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {routes.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton asChild isActive={item.active}>
                     <Link href={item.href}>
-                      <item.icon />
+                      <item.icon strokeWidth={2.5} />
                       <span>{item.label}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -92,7 +106,10 @@ export function SidebarLayout({ ...props }: React.ComponentProps<typeof Sidebar>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <NavUser user={user} />
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }

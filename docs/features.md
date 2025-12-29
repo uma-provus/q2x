@@ -15,15 +15,17 @@ This document tracks the implementation status of features in the project. AI ag
 - ⏸️ **Parked**: Feature is on hold.
 
 ## 1. Core Infrastructure & Tenant Isolation
+- ✅ **Database Schema**: Implemented Drizzle schema with `tenant_id` constraints, roles, and user_roles tables.
+- ✅ **Multi-Tenant Seed Data**: Created seed with 3 realistic tenants (Acme Corporation, TechFlow Solutions, Global Industries).
 - 📝 **Tenant Resolution**: Subdomain or path-based resolution (Middleware).
 - 📝 **RLS Enforcement**: Row Level Security for tenant isolation.
-- 📝 **Database Schema**: Implement Drizzle schema with `tenant_id` constraints.
 
 ## 2. Authentication & RBAC
-- 📝 **Sign In**: Email/Password login (NextAuth Credentials).
+- ✅ **Sign In**: Email/Password login (NextAuth Credentials).
+- ✅ **Sign Up & Onboarding**: New tenant creation with admin user.
+- ✅ **RBAC Roles**: Admin, Sales, Finance, Viewer roles implemented.
 - 📝 **Sign Out**: Logout functionality.
 - 📝 **Session-aware Layout**: Layout changes based on auth state.
-- 📝 **RBAC Roles**: Admin, Sales, Finance, Viewer roles.
 - 📝 **Permission Mapping**: Map roles to allowed actions.
 - 📝 **Basic Admin**: Invite user + assign role.
 

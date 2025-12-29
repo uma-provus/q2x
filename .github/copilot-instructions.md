@@ -124,3 +124,4 @@ When generating code, Copilot should:
 - Keep `page.tsx` minimal (compose from components + call feature query/action)
 - Use `@/` imports consistently
 - Produce Biome-friendly formatting (no Prettier-specific assumptions)
+- When creating a new page, update `routeMapping` in `src/components/app-breadcrumb.tsx` to define the breadcrumb title (metadata) for the new route.
