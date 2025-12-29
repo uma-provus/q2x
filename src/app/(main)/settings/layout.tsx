@@ -32,7 +32,7 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
                     <SettingsTabs items={tabItems} />
                 </aside>
                 <Separator orientation="vertical" className="hidden h-full lg:block" />
-                <div className="flex-1 lg:max-w-2xl px-6 py-6">{children}</div>
+                <div className="flex-1 w-full px-6 py-6">{children}</div>
             </div>
         </div>
     );

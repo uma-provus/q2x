@@ -1,4 +1,8 @@
 import bcrypt from "bcryptjs";
+import {
+    DEFAULT_CATALOG_SETTINGS,
+    DEFAULT_QUOTE_SETTINGS,
+} from "@/features/settings/types";
 import { db } from "./index";
 import { roles, tenants, userRoles, users } from "./schema";
 
@@ -42,25 +46,32 @@ async function main() {
             name: "Acme Corporation",
             slug: "acme",
             adminName: "Alice Johnson",
-            salesName: "Bob Smith"
+            salesName: "Bob Smith",
         },
         {
             name: "TechFlow Solutions",
             slug: "techflow",
             adminName: "Charlie Davis",
-            salesName: "Diana Evans"
+            salesName: "Diana Evans",
         },
         {
             name: "Global Industries",
             slug: "global",
             adminName: "Evan Wright",
-            salesName: "Fiona Green"
+            salesName: "Fiona Green",
         },
     ];
 
     const createdTenants = await db
         .insert(tenants)
-        .values(tenantsSeedData.map(({ name, slug }) => ({ name, slug })))
+        .values(
+            tenantsSeedData.map(({ name, slug }) => ({
+                name,
+                slug,
+                catalogSchema: DEFAULT_CATALOG_SETTINGS,
+                quoteSettings: DEFAULT_QUOTE_SETTINGS,
+            })),
+        )
         .returning();
 
     const passwordHash = await bcrypt.hash("password123", 10);
@@ -68,7 +79,7 @@ async function main() {
     // Create users for each tenant
     console.log("Creating users...");
     for (const tenant of createdTenants) {
-        const seedData = tenantsSeedData.find(t => t.slug === tenant.slug);
+        const seedData = tenantsSeedData.find((t) => t.slug === tenant.slug);
         const companyDomain = tenant.slug;
 
         // Create admin user

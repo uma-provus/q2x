@@ -13,6 +13,7 @@ export const tenants = pgTable("tenants", {
     name: text("name").notNull(),
     slug: text("slug").notNull().unique(),
     catalogSchema: jsonb("catalog_schema"),
+    quoteSettings: jsonb("quote_settings"),
     notificationSettings: jsonb("notification_settings"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),

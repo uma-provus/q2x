@@ -28,9 +28,9 @@ export function SettingsTabs({ items }: SettingsTabsProps) {
                         <Link href={item.href} className="flex flex-col items-start gap-1 w-full">
                             <div className="flex items-center w-full relative">
                                 {pathname === item.href && (
-                                    <div className="absolute -left-4 top-0.5 h-7 w-1 bg-primary rounded-r-full" />
+                                    <div className="absolute -left-4 top-0.5 h-8 w-1 bg-primary rounded-l-xs" />
                                 )}
-                                <span className={pathname === item.href ? "font-medium text-primary" : "font-medium"}>
+                                <span className={pathname === item.href ? "font-bold" : "font-medium"}>
                                     {item.title}
                                 </span>
                             </div>
