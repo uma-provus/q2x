@@ -37,7 +37,7 @@ export default function LoginPage() {
                 toast.error("Invalid credentials");
             } else {
                 toast.success("Logged in successfully");
-                router.push("/");
+                router.push("/dashboard");
                 router.refresh();
             }
         } catch (error) {
@@ -56,6 +56,11 @@ export default function LoginPage() {
                         Enter your email and password to access your account.
                     </CardDescription>
                 </CardHeader>
+                <div className="px-6 pb-4 text-sm text-muted-foreground">
+                    <p>Test Credentials:</p>
+                    <p>Email: admin@acme.com</p>
+                    <p>Password: password123</p>
+                </div>
                 <form onSubmit={handleSubmit}>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
