@@ -24,6 +24,7 @@
 - `id` (uuid, pk)
 - `tenant_id` (uuid, fk → tenants.id)
 - `email` (text)
+- `password_hash` (text, nullable) - For simple email/password auth
 - `name` (text)
 - `status` (active, invited, disabled)
 - `created_at`, `updated_at`

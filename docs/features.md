@@ -20,7 +20,7 @@ This document tracks the implementation status of features in the project. AI ag
 - 📝 **Database Schema**: Implement Drizzle schema with `tenant_id` constraints.
 
 ## 2. Authentication & RBAC
-- 📝 **Sign In**: NextAuth integration.
+- 📝 **Sign In**: Email/Password login (NextAuth Credentials).
 - 📝 **Sign Out**: Logout functionality.
 - 📝 **Session-aware Layout**: Layout changes based on auth state.
 - 📝 **RBAC Roles**: Admin, Sales, Finance, Viewer roles.

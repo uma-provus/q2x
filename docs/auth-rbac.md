@@ -14,5 +14,6 @@
 - Derive permissions in code with a single mapping table (role → allowed actions).
 
 ## Authentication
-- **NextAuth** (or similar) for identity.
-- Middleware resolves tenant and validates session.
+- **Strategy**: Simple Email/Password (Credentials Provider).
+- **Library**: NextAuth.js (v5).
+- **Middleware**: Resolves tenant and validates session.
