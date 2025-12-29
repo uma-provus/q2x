@@ -37,6 +37,8 @@ This document tracks the implementation status of features in the project. AI ag
 
 ## 5. Catalog
 - 📝 **Catalog Item CRUD**: Manage SKUs, prices, descriptions.
+- 📝 **Custom Fields**: Support for extending schema via JSON.
+- 📝 **Schema Configuration**: UI to define custom fields (Tenant settings).
 
 ## 6. Quotes (Core Feature)
 - 📝 **Quote Builder**: Header + Lines management.

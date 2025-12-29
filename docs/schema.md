@@ -17,6 +17,7 @@
 - `id` (uuid, pk)
 - `name` (text)
 - `slug` (text, unique)
+- `catalog_schema` (jsonb, nullable) - Defines custom fields for catalog items (label, type, required)
 - `created_at`, `updated_at`
 
 ### users
@@ -55,6 +56,7 @@
 - `unit_price` (numeric)
 - `currency` (text)
 - `active` (boolean)
+- `custom_fields` (jsonb, nullable)
 - `created_at`, `updated_at`
 
 ### quotes
