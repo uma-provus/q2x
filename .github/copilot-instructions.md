@@ -11,6 +11,15 @@ These instructions guide GitHub Copilot for this repo. Prioritize correctness, m
 - Formatting/Lint: **Biome**
 - Imports: Use `@/` alias (e.g. `@/lib/...`, `@/components/...`)
 
+## Project Status & Documentation
+- **Feature Tracking**: Refer to `docs/features.md` for the current status of features and the roadmap.
+- **Detailed Documentation**: Check the `docs/` folder for:
+  - `docs/project-goals.md`: Vision and problem statement.
+  - `docs/architecture.md`: High-level architecture and multi-tenancy.
+  - `docs/schema.md`: Database schema and constraints.
+  - `docs/auth-rbac.md`: Authentication and roles.
+- **Update Policy**: When completing a feature, update `docs/features.md` to reflect the change.
+
 ## High-Level Architecture
 - Prefer a **hybrid** approach:
   - Use **Server Components** for data fetching and rendering by default.
