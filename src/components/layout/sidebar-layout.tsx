@@ -24,7 +24,7 @@ import {
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function SidebarLayout({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname()
 
   const routes = [
