@@ -36,19 +36,25 @@ export const quoteSettingsSchema = z.object({
 export type CatalogSettings = z.infer<typeof catalogSettingsSchema>;
 export type QuoteSettings = z.infer<typeof quoteSettingsSchema>;
 
+export enum CatalogType {
+    ResourceRole = "resource_role",
+    Product = "product",
+    AddOn = "add_on",
+}
+
 export const DEFAULT_CATALOG_SETTINGS: CatalogSettings = {
     types: [
-        { id: "1", name: "Resource Role", key: "resource_role", isStandard: true, color: "#3b82f6" }, // blue-500
-        { id: "2", name: "Product", key: "product", isStandard: true, color: "#10b981" }, // emerald-500
-        { id: "3", name: "Add On", key: "add_on", isStandard: true, color: "#f59e0b" }, // amber-500
+        { id: "1", name: "Resource Role", key: CatalogType.ResourceRole, isStandard: true, color: "#3b82f6" }, // blue-500
+        { id: "2", name: "Product", key: CatalogType.Product, isStandard: true, color: "#10b981" }, // emerald-500
+        { id: "3", name: "Add On", key: CatalogType.AddOn, isStandard: true, color: "#f59e0b" }, // amber-500
     ],
     unitTypes: [
         { id: "1", name: "Flat", key: "flat", enabled: true },
-        { id: "2", name: "Hourly", key: "hourly", enabled: true },
-        { id: "3", name: "Weekly", key: "weekly", enabled: true },
-        { id: "4", name: "Monthly", key: "monthly", enabled: true },
-        { id: "5", name: "Quarterly", key: "quarterly", enabled: true },
-        { id: "6", name: "Yearly", key: "yearly", enabled: true },
+        { id: "2", name: "Hour", key: "hourly", enabled: true },
+        { id: "3", name: "Week", key: "weekly", enabled: true },
+        { id: "4", name: "Month", key: "monthly", enabled: true },
+        { id: "5", name: "Quarter", key: "quarterly", enabled: true },
+        { id: "6", name: "Year", key: "yearly", enabled: true },
     ],
 };
 

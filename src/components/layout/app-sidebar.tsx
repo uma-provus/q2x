@@ -1,16 +1,16 @@
 "use client";
 
 import {
+  Building2,
   FileText,
   LayoutDashboard,
   Package2,
   Settings,
-  Users,
+  UserRound,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type * as React from "react";
-import { NavUser } from "@/components/layout/nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -27,21 +27,37 @@ import {
 
 export function AppSidebar({
   tenantName,
-  user,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
   tenantName?: string;
-  user: { name: string; email: string; avatar: string };
 }) {
   const pathname = usePathname();
 
-  const routes = [
+  const dashboardRoutes = [
     {
       label: "Dashboard",
       icon: LayoutDashboard,
       href: "/dashboard",
       active: pathname === "/dashboard",
     },
+  ];
+
+  const crmRoutes = [
+    {
+      label: "Companies",
+      icon: Building2,
+      href: "/companies",
+      active: pathname.startsWith("/companies"),
+    },
+    {
+      label: "Contacts",
+      icon: UserRound,
+      href: "/contacts",
+      active: pathname.startsWith("/contacts"),
+    },
+  ];
+
+  const quotingRoutes = [
     {
       label: "Quotes",
       icon: FileText,
@@ -49,17 +65,14 @@ export function AppSidebar({
       active: pathname.startsWith("/quotes"),
     },
     {
-      label: "Customers",
-      icon: Users,
-      href: "/customers",
-      active: pathname.startsWith("/customers"),
-    },
-    {
       label: "Catalogs",
       icon: Package2,
       href: "/catalogs",
       active: pathname.startsWith("/catalogs"),
     },
+  ];
+
+  const settingsRoutes = [
     {
       label: "Settings",
       icon: Settings,
@@ -92,7 +105,60 @@ export function AppSidebar({
           <SidebarGroupLabel>Home</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {routes.map((item) => (
+              {dashboardRoutes.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton asChild isActive={item.active}>
+                    <Link href={item.href}>
+                      <item.icon strokeWidth={2.5} />
+                      <span>{item.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>CRM</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {crmRoutes.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton asChild isActive={item.active}>
+                    <Link href={item.href}>
+                      <item.icon strokeWidth={2.5} />
+                      <span>{item.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Quoting</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {quotingRoutes.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <SidebarMenuButton asChild isActive={item.active}>
+                    <Link href={item.href}>
+                      <item.icon strokeWidth={2.5} />
+                      <span>{item.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {settingsRoutes.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton asChild isActive={item.active}>
                     <Link href={item.href}>
@@ -106,9 +172,6 @@ export function AppSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
-        <NavUser user={user} />
-      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );

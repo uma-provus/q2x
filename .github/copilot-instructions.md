@@ -55,7 +55,9 @@ These instructions guide GitHub Copilot for this repo. Prioritize correctness, m
 ## UI & Styling Conventions
 - Use **shadcn/ui** components first; compose them into shared components only when reusable.
 - **NEVER modify default shadcn/ui components** in `components/ui/`. If you need to customize them, wrap them or create a new component that composes them.
+- **Avoid customizing standard shadcn components using utility classes** (e.g., `className="..."`) unless absolutely necessary. Rely on the component's default variants and the theme.
 - Tailwind:
+  - **Always use canonical classes** (e.g., `w-75` instead of `w-[300px]`, `w-45` instead of `w-[180px]`). Avoid arbitrary values (`[...]`) whenever a standard or configured utility exists.
   - Prefer `cn()` utility for conditional classes.
   - Keep class lists readable; extract to components when it gets unwieldy.
 - Accessibility:

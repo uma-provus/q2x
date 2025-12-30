@@ -85,3 +85,64 @@ export const catalogItems = pgTable("catalog_items", {
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+export const companies = pgTable("companies", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+        .references(() => tenants.id)
+        .notNull(),
+    name: text("name").notNull(),
+    website: text("website"),
+    address: text("address"),
+    city: text("city"),
+    state: text("state"),
+    country: text("country"),
+    postalCode: text("postal_code"),
+    tags: text("tags").array(),
+    customFields: jsonb("custom_fields"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const contacts = pgTable("contacts", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+        .references(() => tenants.id)
+        .notNull(),
+    companyId: uuid("company_id")
+        .references(() => companies.id)
+        .notNull(),
+    firstName: text("first_name").notNull(),
+    lastName: text("last_name").notNull(),
+    email: text("email"),
+    phone: text("phone"),
+    title: text("title"), // Job title
+    isPrimary: boolean("is_primary").default(false).notNull(),
+    tags: text("tags").array(),
+    customFields: jsonb("custom_fields"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const quotes = pgTable("quotes", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    tenantId: uuid("tenant_id")
+        .references(() => tenants.id)
+        .notNull(),
+    quoteNumber: text("quote_number").notNull(),
+    title: text("title").notNull(),
+    companyId: uuid("company_id").references(() => companies.id),
+    contactId: uuid("contact_id").references(() => contacts.id),
+    status: text("status").notNull(), // References a status key defined in tenant settings
+    totalAmount: text("total_amount").notNull(),
+    currency: text("currency").default("USD").notNull(),
+    validUntil: timestamp("valid_until"),
+    notes: text("notes"),
+    tags: text("tags").array(),
+    customFields: jsonb("custom_fields"),
+    createdBy: uuid("created_by")
+        .references(() => users.id)
+        .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});

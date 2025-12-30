@@ -19,7 +19,8 @@ export const routeMapping: Record<string, string> = {
     login: "Login",
     signup: "Sign Up",
     quotes: "Quotes",
-    customers: "Customers",
+    companies: "Companies",
+    contacts: "Contacts",
     catalogs: "Catalogs",
     settings: "Settings",
     general: "General",
@@ -33,7 +34,11 @@ export function AppBreadcrumb() {
 
     return (
         <Breadcrumb>
-            <BreadcrumbList>
+            <BreadcrumbList className="text-base sm:text-base">
+                <BreadcrumbItem className="hidden md:block">
+                    <BreadcrumbLink href="/dashboard" className="text-muted-foreground hover:text-foreground transition-colors">Home</BreadcrumbLink>
+                </BreadcrumbItem>
+                {segments.length > 0 && <BreadcrumbSeparator className="hidden md:block" />}
                 {segments.map((segment, index) => {
                     const href = `/${segments.slice(0, index + 1).join("/")}`;
                     const isLast = index === segments.length - 1;
@@ -48,9 +53,9 @@ export function AppBreadcrumb() {
                         <React.Fragment key={href}>
                             <BreadcrumbItem className="hidden md:block">
                                 {isLast ? (
-                                    <BreadcrumbPage>{title}</BreadcrumbPage>
+                                    <BreadcrumbPage className="font-semibold text-foreground">{title}</BreadcrumbPage>
                                 ) : (
-                                    <BreadcrumbLink href={href}>{title}</BreadcrumbLink>
+                                    <BreadcrumbLink href={href} className="text-muted-foreground hover:text-foreground transition-colors">{title}</BreadcrumbLink>
                                 )}
                             </BreadcrumbItem>
                             {!isLast && <BreadcrumbSeparator className="hidden md:block" />}

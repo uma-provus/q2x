@@ -1,18 +1,20 @@
-import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { CatalogTable } from "@/features/catalogs/components/catalog-table";
+import { getCatalogs } from "@/features/catalogs/queries/get-catalogs";
 
-export default async function CatalogsPage() {
-    const session = await auth();
+interface CatalogsPageProps {
+    searchParams: Promise<{
+        page?: string;
+    }>;
+}
 
-    if (!session) {
-        redirect("/login");
-    }
+export default async function CatalogsPage({ searchParams }: CatalogsPageProps) {
+    const params = await searchParams;
+    const page = Number(params.page) || 1;
+    const { data, meta, settings } = await getCatalogs({ page, pageSize: 25 });
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="p-6 border rounded-lg shadow-sm bg-card">
-                <p className="text-muted-foreground">Catalog management will be implemented here.</p>
-            </div>
+            <CatalogTable data={data} meta={meta} settings={settings} />
         </div>
     );
 }

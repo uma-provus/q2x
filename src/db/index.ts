@@ -7,5 +7,11 @@ const connectionString =
     "postgres://postgres:password@localhost:5432/q2x";
 
 // Disable prefetch as it is not supported for "Transaction" pool mode
-const client = postgres(connectionString, { prepare: false });
-export const db = drizzle(client, { schema });
+const globalForDb = globalThis as unknown as {
+    conn: postgres.Sql | undefined;
+};
+
+const conn = globalForDb.conn ?? postgres(connectionString, { prepare: false });
+if (process.env.NODE_ENV !== "production") globalForDb.conn = conn;
+
+export const db = drizzle(conn, { schema });

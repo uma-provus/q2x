@@ -13,11 +13,6 @@ const tabItems = [
         href: "/settings/general",
         description: "Manage your organization profile and settings.",
     },
-    {
-        title: "Customize",
-        href: "/settings/customize",
-        description: "Customize your catalog items and units.",
-    },
 ];
 
 interface SettingsLayoutProps {

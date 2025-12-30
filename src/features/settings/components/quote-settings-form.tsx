@@ -127,7 +127,7 @@ function StatusItem({
     );
 }
 
-export function QuoteSettingsForm({ initialData }: QuoteSettingsFormProps) {
+export function QuoteStatusesSection({ initialData }: QuoteSettingsFormProps) {
     const colors = [
         "#3b82f6",
         "#8b5cf6",
@@ -195,7 +195,7 @@ export function QuoteSettingsForm({ initialData }: QuoteSettingsFormProps) {
                                 ))}
                             </div>
 
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 mt-3">
                                 <InputGroup className="flex-1 h-10">
                                     <InputGroupAddon align="inline-start" className="pl-3">
                                         <Popover>
@@ -315,4 +315,8 @@ export function QuoteSettingsForm({ initialData }: QuoteSettingsFormProps) {
             </form>
         </TooltipProvider>
     );
+}
+
+export function QuoteSettingsForm({ initialData }: QuoteSettingsFormProps) {
+    return <QuoteStatusesSection initialData={initialData} />;
 }
