@@ -6,6 +6,7 @@ import type { z } from "zod";
 import { db } from "@/db";
 import { companies } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { validateEntity } from "@/lib/custom-fields";
 import { companySchema } from "../types";
 
 export async function updateCompany(
@@ -20,6 +21,19 @@ export async function updateCompany(
 
     const validatedData = companySchema.parse(data);
 
+    // Validate custom fields
+    const validation = await validateEntity({
+        tenantId: session.user.tenantId,
+        entityType: "company",
+        customFields: validatedData.customFields,
+    });
+
+    if (!validation.valid) {
+        throw new Error(
+            `Validation failed: ${validation.errors.map((e) => `${e.path}: ${e.message}`).join(", ")}`
+        );
+    }
+
     await db
         .update(companies)
         .set({
@@ -31,6 +45,7 @@ export async function updateCompany(
             country: validatedData.country || null,
             postalCode: validatedData.postalCode || null,
             tags: validatedData.tags || null,
+            customFields: validation.validatedCustomFields || null,
             updatedAt: new Date(),
         })
         .where(eq(companies.id, id));

@@ -20,10 +20,10 @@ export const routeMapping: Record<string, string> = {
     signup: "Sign Up",
     quotes: "Quotes",
     companies: "Companies",
-    contacts: "Contacts",
     catalogs: "Catalogs",
     settings: "Settings",
     general: "General",
+    "custom-fields": "Custom Fields",
     customize: "Customize",
     notifications: "Notifications",
 };

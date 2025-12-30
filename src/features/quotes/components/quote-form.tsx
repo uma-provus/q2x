@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
+import { CustomFieldsFormSection } from "@/components/custom-fields-form-section";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -30,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import type { QuoteSettings } from "@/features/settings/types";
+import type { CustomFieldDefinition } from "@/lib/custom-fields";
 import { cn } from "@/lib/utils";
 import { quoteSchema } from "../types";
 
@@ -39,6 +41,7 @@ interface QuoteFormProps {
     defaultValues?: Partial<QuoteFormValues>;
     onSubmit: (data: QuoteFormValues) => Promise<void>;
     settings: QuoteSettings;
+    customFields?: CustomFieldDefinition[];
     isSubmitting?: boolean;
 }
 
@@ -46,9 +49,10 @@ export function QuoteForm({
     defaultValues,
     onSubmit,
     settings,
+    customFields = [],
     isSubmitting,
 }: QuoteFormProps) {
-    const form = useForm<QuoteFormValues>({
+    const form = useForm({
         resolver: zodResolver(quoteSchema),
         defaultValues: {
             quoteNumber: "",
@@ -60,9 +64,18 @@ export function QuoteForm({
             currency: "USD",
             notes: "",
             tags: [],
+            customFields: {},
             ...defaultValues,
         },
-    });
+    }) as ReturnType<typeof useForm<QuoteFormValues>>;
+
+    const handleCustomFieldChange = (fieldKey: string, value: unknown) => {
+        const currentCustomFields = form.getValues("customFields") || {};
+        form.setValue("customFields", {
+            ...currentCustomFields,
+            [fieldKey]: value,
+        });
+    };
 
     return (
         <Form {...form}>
@@ -228,6 +241,18 @@ export function QuoteForm({
                         </FormItem>
                     )}
                 />
+
+                <CustomFieldsFormSection
+                    fields={customFields}
+                    values={form.watch("customFields") || {}}
+                    onChange={handleCustomFieldChange}
+                />
+
+                <div className="flex justify-end gap-3 pt-4 border-t">
+                    <Button type="submit" disabled={isSubmitting} className="min-w-24">
+                        {isSubmitting ? "Saving..." : "Save Quote"}
+                    </Button>
+                </div>
             </form>
         </Form>
     );

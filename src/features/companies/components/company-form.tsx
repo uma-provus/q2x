@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
+import { CustomFieldsFormSection } from "@/components/custom-fields-form-section";
 import {
     Form,
     FormControl,
@@ -13,6 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import type { CustomFieldDefinition } from "@/lib/custom-fields";
 import { companySchema } from "../types";
 
 type CompanyFormValues = z.infer<typeof companySchema>;
@@ -20,13 +22,15 @@ type CompanyFormValues = z.infer<typeof companySchema>;
 interface CompanyFormProps {
     defaultValues?: Partial<CompanyFormValues>;
     onSubmit: (data: CompanyFormValues) => Promise<void>;
+    customFields?: CustomFieldDefinition[];
     isSubmitting?: boolean;
 }
 
 export function CompanyForm({
     defaultValues,
     onSubmit,
-    isSubmitting,
+    customFields = [],
+    isSubmitting: _isSubmitting,
 }: CompanyFormProps) {
     const form = useForm<CompanyFormValues>({
         resolver: zodResolver(companySchema),
@@ -39,9 +43,18 @@ export function CompanyForm({
             country: "",
             postalCode: "",
             tags: [],
+            customFields: {},
             ...defaultValues,
         },
     });
+
+    const handleCustomFieldChange = (fieldKey: string, value: unknown) => {
+        const currentCustomFields = form.getValues("customFields") || {};
+        form.setValue("customFields", {
+            ...currentCustomFields,
+            [fieldKey]: value,
+        });
+    };
 
     return (
         <Form {...form}>
@@ -51,7 +64,9 @@ export function CompanyForm({
                     name="name"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel className="text-sm font-medium">Company Name *</FormLabel>
+                            <FormLabel className="text-sm font-medium">
+                                Company Name *
+                            </FormLabel>
                             <FormControl>
                                 <Input placeholder="Company name" {...field} className="h-9" />
                             </FormControl>
@@ -159,6 +174,12 @@ export function CompanyForm({
                         )}
                     />
                 </div>
+
+                <CustomFieldsFormSection
+                    fields={customFields}
+                    values={form.watch("customFields") || {}}
+                    onChange={handleCustomFieldChange}
+                />
             </form>
         </Form>
     );

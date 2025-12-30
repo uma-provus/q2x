@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -63,6 +64,7 @@ import { updateQuote } from "@/features/quotes/actions/update-quote";
 import { QuoteConfigDialog } from "@/features/quotes/components/quote-config-dialog";
 import { QuoteForm } from "@/features/quotes/components/quote-form";
 import type { QuoteSettings } from "@/features/settings/types";
+import type { CustomFieldDefinition } from "@/lib/custom-fields";
 import { formatCurrency } from "@/lib/utils";
 import type { Quote, quoteSchema } from "../types";
 
@@ -77,9 +79,15 @@ interface QuoteTableProps {
         totalPages: number;
     };
     settings: QuoteSettings;
+    customFields: CustomFieldDefinition[];
 }
 
-export function QuoteTable({ data, meta, settings }: QuoteTableProps) {
+export function QuoteTable({
+    data,
+    meta,
+    settings,
+    customFields,
+}: QuoteTableProps) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -130,7 +138,10 @@ export function QuoteTable({ data, meta, settings }: QuoteTableProps) {
             const matchesSearch = searchQuery
                 ? item.quoteNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                item.customerName.toLowerCase().includes(searchQuery.toLowerCase())
+                (item.customerName
+                    ?.toLowerCase()
+                    .includes(searchQuery.toLowerCase()) ??
+                    false)
                 : true;
             const matchesStatus =
                 selectedStatuses.length === 0 || selectedStatuses.includes(item.status);
@@ -150,8 +161,8 @@ export function QuoteTable({ data, meta, settings }: QuoteTableProps) {
                     bVal = b.title.toLowerCase();
                     break;
                 case "customerName":
-                    aVal = a.customerName.toLowerCase();
-                    bVal = b.customerName.toLowerCase();
+                    aVal = (a.customerName ?? "").toLowerCase();
+                    bVal = (b.customerName ?? "").toLowerCase();
                     break;
                 case "totalAmount":
                     aVal = Number(a.totalAmount);
@@ -351,20 +362,11 @@ export function QuoteTable({ data, meta, settings }: QuoteTableProps) {
                 {viewMode === "list" ? (
                     <Table>
                         <TableHeader>
-                            <TableRow>
-                                <TableHead>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="h-8 gap-1 hover:bg-transparent"
-                                        onClick={() => handleSort("quoteNumber")}
-                                    >
-                                        Quote #
-                                        {sortField === "quoteNumber" && (
-                                            <ArrowUpDown className="h-3 w-3" />
-                                        )}
-                                    </Button>
+                            <TableRow className="hover:bg-transparent">
+                                <TableHead className="w-10 pl-4">
+                                    <Checkbox />
                                 </TableHead>
+                                <TableHead>#</TableHead>
                                 <TableHead>
                                     <Button
                                         variant="ghost"
@@ -424,7 +426,7 @@ export function QuoteTable({ data, meta, settings }: QuoteTableProps) {
                         <TableBody>
                             {filteredData.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={7} className="h-24 text-center">
+                                    <TableCell colSpan={8} className="h-24 text-center">
                                         No quotes found.
                                     </TableCell>
                                 </TableRow>
@@ -433,6 +435,9 @@ export function QuoteTable({ data, meta, settings }: QuoteTableProps) {
                                     const status = getStatusLabel(quote.status);
                                     return (
                                         <TableRow key={quote.id}>
+                                            <TableCell className="pl-4">
+                                                <Checkbox />
+                                            </TableCell>
                                             <TableCell className="font-medium">
                                                 {quote.quoteNumber}
                                             </TableCell>
@@ -582,29 +587,41 @@ export function QuoteTable({ data, meta, settings }: QuoteTableProps) {
             </div>
             {/* Add Quote Sheet */}
             <Sheet open={isAddOpen} onOpenChange={setIsAddOpen}>
-                <SheetContent className="sm:max-w-xl overflow-y-auto">
-                    <SheetHeader>
-                        <SheetTitle>Create Quote</SheetTitle>
-                        <SheetDescription>
-                            Add a new quote to your system. Fill in all required fields.
+                <SheetContent className="flex flex-col p-0">
+                    <SheetHeader className="px-6 pt-6 pb-4 border-b">
+                        <SheetTitle className="text-xl font-semibold">Add Quote</SheetTitle>
+                        <SheetDescription className="text-sm">
+                            Create a new quote to add to your system.
                         </SheetDescription>
                     </SheetHeader>
-                    <div className="mt-6">
+                    <div className="flex-1 overflow-y-auto px-6 py-6">
                         <QuoteForm
                             onSubmit={handleCreate}
                             settings={settings}
+                            customFields={customFields}
                             isSubmitting={isPending}
                         />
-                        <div className="flex justify-end gap-3 mt-6">
+                    </div>
+                    <div className="border-t px-6 py-4 bg-background">
+                        <div className="flex justify-end gap-2">
                             <Button
+                                type="button"
                                 variant="outline"
                                 onClick={() => setIsAddOpen(false)}
-                                disabled={isPending}
                             >
                                 Cancel
                             </Button>
-                            <Button type="submit" form="quote-form" disabled={isPending}>
-                                {isPending ? "Creating..." : "Create Quote"}
+                            <Button
+                                type="submit"
+                                disabled={isPending}
+                                onClick={() => {
+                                    const form = document.querySelector(
+                                        "form",
+                                    ) as HTMLFormElement;
+                                    form?.requestSubmit();
+                                }}
+                            >
+                                {isPending ? "Saving..." : "Save"}
                             </Button>
                         </div>
                     </div>
@@ -612,15 +629,17 @@ export function QuoteTable({ data, meta, settings }: QuoteTableProps) {
             </Sheet>
             {/* Edit Quote Sheet */}
             <Sheet open={!!editingItem} onOpenChange={() => setEditingItem(null)}>
-                <SheetContent className="sm:max-w-xl overflow-y-auto">
-                    <SheetHeader>
-                        <SheetTitle>Edit Quote</SheetTitle>
-                        <SheetDescription>
-                            Make changes to the quote. Click save when you're done.
+                <SheetContent className="flex flex-col p-0">
+                    <SheetHeader className="px-6 pt-6 pb-4 border-b">
+                        <SheetTitle className="text-xl font-semibold">
+                            Edit Quote
+                        </SheetTitle>
+                        <SheetDescription className="text-sm">
+                            Make changes to the quote here.
                         </SheetDescription>
                     </SheetHeader>
-                    {editingItem && (
-                        <div className="mt-6">
+                    <div className="flex-1 overflow-y-auto px-6 py-6">
+                        {editingItem && (
                             <QuoteForm
                                 defaultValues={{
                                     quoteNumber: editingItem.quoteNumber,
@@ -633,25 +652,38 @@ export function QuoteTable({ data, meta, settings }: QuoteTableProps) {
                                     validUntil: editingItem.validUntil || undefined,
                                     notes: editingItem.notes || "",
                                     tags: editingItem.tags || [],
+                                    customFields: editingItem.customFields || {},
                                 }}
                                 onSubmit={handleUpdate}
                                 settings={settings}
+                                customFields={customFields}
                                 isSubmitting={isPending}
                             />
-                            <div className="flex justify-end gap-3 mt-6">
-                                <Button
-                                    variant="outline"
-                                    onClick={() => setEditingItem(null)}
-                                    disabled={isPending}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button type="submit" form="quote-form" disabled={isPending}>
-                                    {isPending ? "Saving..." : "Save Changes"}
-                                </Button>
-                            </div>
+                        )}
+                    </div>
+                    <div className="border-t px-6 py-4 bg-background">
+                        <div className="flex justify-end gap-2">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setEditingItem(null)}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={isPending}
+                                onClick={() => {
+                                    const form = document.querySelector(
+                                        "form",
+                                    ) as HTMLFormElement;
+                                    form?.requestSubmit();
+                                }}
+                            >
+                                {isPending ? "Saving..." : "Save"}
+                            </Button>
                         </div>
-                    )}
+                    </div>
                 </SheetContent>
             </Sheet>
             {/* Delete Confirmation Dialog */}

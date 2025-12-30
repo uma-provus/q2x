@@ -11,6 +11,7 @@ export const quoteSchema = z.object({
     validUntil: z.date().optional(),
     notes: z.string().optional(),
     tags: z.array(z.string()).optional(),
+    customFields: z.record(z.unknown()).optional(),
 });
 
 export type Quote = {
@@ -18,8 +19,11 @@ export type Quote = {
     tenantId: string;
     quoteNumber: string;
     title: string;
-    customerId: string | null;
-    customerName: string;
+    companyId: string | null;
+    contactId: string | null;
+    // Legacy fields for backward compatibility
+    customerId?: string | null;
+    customerName?: string;
     status: string;
     totalAmount: string;
     currency: string;

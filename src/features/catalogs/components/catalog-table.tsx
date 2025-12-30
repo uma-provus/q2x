@@ -68,6 +68,7 @@ import { CatalogConfigDialog } from "@/features/catalogs/components/catalog-conf
 import { CatalogForm } from "@/features/catalogs/components/catalog-form";
 import type { CatalogItemFormValues } from "@/features/catalogs/schema";
 import type { CatalogSettings } from "@/features/settings/types";
+import type { CustomFieldDefinition } from "@/lib/custom-fields";
 import { formatCurrency } from "@/lib/utils";
 import type { CatalogItem } from "../types";
 
@@ -80,9 +81,17 @@ interface CatalogTableProps {
         totalPages: number;
     };
     settings: CatalogSettings;
+    tenantId: string;
+    customFields: CustomFieldDefinition[];
 }
 
-export function CatalogTable({ data, meta, settings }: CatalogTableProps) {
+export function CatalogTable({
+    data,
+    meta,
+    settings,
+    tenantId,
+    customFields,
+}: CatalogTableProps) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -92,12 +101,21 @@ export function CatalogTable({ data, meta, settings }: CatalogTableProps) {
     const [isAddOpen, setIsAddOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<CatalogItem | null>(null);
     const [deletingItem, setDeletingItem] = useState<CatalogItem | null>(null);
-    const [visibleColumns, setVisibleColumns] = useState({
-        type: true,
-        cost: true,
-        price: true,
-        tags: true,
-    });
+    const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>(
+        () => {
+            const defaultColumns: Record<string, boolean> = {
+                type: true,
+                cost: true,
+                price: true,
+                tags: true,
+            };
+            // Add custom fields to visible columns (default to false)
+            for (const field of customFields) {
+                defaultColumns[`custom_${field.fieldKey}`] = false;
+            }
+            return defaultColumns;
+        },
+    );
     const [viewMode, setViewMode] = useState<"list" | "grid">("list");
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -129,7 +147,7 @@ export function CatalogTable({ data, meta, settings }: CatalogTableProps) {
         setSelectedTypes((prev) =>
             prev.includes(typeKey)
                 ? prev.filter((t) => t !== typeKey)
-                : [...prev, typeKey]
+                : [...prev, typeKey],
         );
     };
 
@@ -180,7 +198,7 @@ export function CatalogTable({ data, meta, settings }: CatalogTableProps) {
         });
 
     const getTypeLabel = (key: string) => {
-        const type = settings.types.find((t) => t.key === key);
+        const type = settings.types.find((t) => t.key.toLowerCase() === key.toLowerCase());
         return type;
     };
 
@@ -247,7 +265,9 @@ export function CatalogTable({ data, meta, settings }: CatalogTableProps) {
                         </Button>
                         <div className="flex items-center gap-1 px-3 text-sm">
                             <span className="font-medium">{meta.page}</span>
-                            <span className="text-muted-foreground">of {meta.totalPages}</span>
+                            <span className="text-muted-foreground">
+                                of {meta.totalPages}
+                            </span>
                         </div>
                         <Button
                             variant="outline"
@@ -258,7 +278,7 @@ export function CatalogTable({ data, meta, settings }: CatalogTableProps) {
                             <ChevronRight className="h-4 w-4" />
                         </Button>
                     </div>
-                    <CatalogConfigDialog settings={settings}>
+                    <CatalogConfigDialog settings={settings} tenantId={tenantId}>
                         <Button variant="outline" className="gap-2">
                             <Settings className="h-4 w-4" />
                             Setup
@@ -284,10 +304,7 @@ export function CatalogTable({ data, meta, settings }: CatalogTableProps) {
                         </InputGroup>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button
-                                    variant="outline"
-                                    className="gap-2"
-                                >
+                                <Button variant="outline" className="gap-2">
                                     <Filter className="h-4 w-4" />
                                     Type
                                     {selectedTypes.length > 0 && (
@@ -385,7 +402,10 @@ export function CatalogTable({ data, meta, settings }: CatalogTableProps) {
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                     onClick={() =>
-                                        setVisibleColumns((prev) => ({ ...prev, price: !prev.price }))
+                                        setVisibleColumns((prev) => ({
+                                            ...prev,
+                                            price: !prev.price,
+                                        }))
                                     }
                                 >
                                     <Checkbox checked={visibleColumns.price} className="mr-2" />
@@ -399,6 +419,32 @@ export function CatalogTable({ data, meta, settings }: CatalogTableProps) {
                                     <Checkbox checked={visibleColumns.tags} className="mr-2" />
                                     Tags
                                 </DropdownMenuItem>
+                                {customFields.length > 0 && (
+                                    <>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">
+                                            Custom Fields
+                                        </DropdownMenuLabel>
+                                        {customFields.map((field) => (
+                                            <DropdownMenuItem
+                                                key={field.id}
+                                                onClick={() =>
+                                                    setVisibleColumns((prev) => ({
+                                                        ...prev,
+                                                        [`custom_${field.fieldKey}`]:
+                                                            !prev[`custom_${field.fieldKey}`],
+                                                    }))
+                                                }
+                                            >
+                                                <Checkbox
+                                                    checked={visibleColumns[`custom_${field.fieldKey}`]}
+                                                    className="mr-2"
+                                                />
+                                                {field.label}
+                                            </DropdownMenuItem>
+                                        ))}
+                                    </>
+                                )}
                             </DropdownMenuContent>
                         </DropdownMenu>
                         <Button onClick={() => setIsAddOpen(true)}>
@@ -493,6 +539,11 @@ export function CatalogTable({ data, meta, settings }: CatalogTableProps) {
                                     </TableHead>
                                 )}
                                 {visibleColumns.tags && <TableHead>Tags</TableHead>}
+                                {customFields.map((field) =>
+                                    visibleColumns[`custom_${field.fieldKey}`] ? (
+                                        <TableHead key={field.id}>{field.label}</TableHead>
+                                    ) : null,
+                                )}
                                 <TableHead className="w-10"></TableHead>
                             </TableRow>
                         </TableHeader>
@@ -544,7 +595,10 @@ export function CatalogTable({ data, meta, settings }: CatalogTableProps) {
                                         <TableCell>
                                             <div className="flex items-baseline gap-1">
                                                 <span className="text-sm font-medium">
-                                                    {formatCurrency(Number(item.unitPrice), item.currency)}
+                                                    {formatCurrency(
+                                                        Number(item.unitPrice),
+                                                        item.currency,
+                                                    )}
                                                 </span>
                                                 <span className="text-xs text-muted-foreground">
                                                     / {getUnitTypeLabel(item.unitType)}
@@ -575,13 +629,25 @@ export function CatalogTable({ data, meta, settings }: CatalogTableProps) {
                                             </div>
                                         </TableCell>
                                     )}
+                                    {customFields.map((field) =>
+                                        visibleColumns[`custom_${field.fieldKey}`] ? (
+                                            <TableCell key={field.id} className="text-sm">
+                                                {item.customFields &&
+                                                    typeof item.customFields === "object" &&
+                                                    field.fieldKey in item.customFields
+                                                    ? String(
+                                                        (item.customFields as Record<string, unknown>)[
+                                                        field.fieldKey
+                                                        ],
+                                                    )
+                                                    : "-"}
+                                            </TableCell>
+                                        ) : null,
+                                    )}
                                     <TableCell>
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button
-                                                    variant="ghost"
-                                                    className="h-8 w-8 p-0"
-                                                >
+                                                <Button variant="ghost" className="h-8 w-8 p-0">
                                                     <span className="sr-only">Open menu</span>
                                                     <MoreVertical className="h-4 w-4" />
                                                 </Button>
@@ -619,7 +685,9 @@ export function CatalogTable({ data, meta, settings }: CatalogTableProps) {
             <Sheet open={isAddOpen} onOpenChange={setIsAddOpen}>
                 <SheetContent className="flex flex-col p-0">
                     <SheetHeader className="px-6 pt-6 pb-4 border-b">
-                        <SheetTitle className="text-xl font-semibold">Add Catalog Item</SheetTitle>
+                        <SheetTitle className="text-xl font-semibold">
+                            Add Catalog Item
+                        </SheetTitle>
                         <SheetDescription className="text-sm">
                             Create a new item to add to your catalog.
                         </SheetDescription>
@@ -628,6 +696,7 @@ export function CatalogTable({ data, meta, settings }: CatalogTableProps) {
                         <CatalogForm
                             onSubmit={handleCreate}
                             settings={settings}
+                            customFields={customFields}
                             isSubmitting={isPending}
                         />
                     </div>
@@ -645,7 +714,7 @@ export function CatalogTable({ data, meta, settings }: CatalogTableProps) {
                                 disabled={isPending}
                                 onClick={() => {
                                     const form = document.querySelector(
-                                        'form'
+                                        "form",
                                     ) as HTMLFormElement;
                                     form?.requestSubmit();
                                 }}
@@ -664,7 +733,9 @@ export function CatalogTable({ data, meta, settings }: CatalogTableProps) {
             >
                 <SheetContent className="flex flex-col p-0">
                     <SheetHeader className="px-6 pt-6 pb-4 border-b">
-                        <SheetTitle className="text-xl font-semibold">Edit Catalog Item</SheetTitle>
+                        <SheetTitle className="text-xl font-semibold">
+                            Edit Catalog Item
+                        </SheetTitle>
                         <SheetDescription className="text-sm">
                             Make changes to the catalog item here.
                         </SheetDescription>
@@ -681,9 +752,11 @@ export function CatalogTable({ data, meta, settings }: CatalogTableProps) {
                                     unitType: editingItem.unitType,
                                     tags: editingItem.tags || [],
                                     currency: editingItem.currency,
+                                    customFields: (editingItem.customFields as Record<string, unknown>) || {},
                                 }}
                                 onSubmit={handleUpdate}
                                 settings={settings}
+                                customFields={customFields}
                                 isSubmitting={isPending}
                             />
                         )}
@@ -702,7 +775,7 @@ export function CatalogTable({ data, meta, settings }: CatalogTableProps) {
                                 disabled={isPending}
                                 onClick={() => {
                                     const form = document.querySelector(
-                                        'form'
+                                        "form",
                                     ) as HTMLFormElement;
                                     form?.requestSubmit();
                                 }}

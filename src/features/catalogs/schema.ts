@@ -9,6 +9,7 @@ export const catalogItemSchema = z.object({
     unitType: z.string().min(1, "Unit type is required"),
     tags: z.array(z.string()).optional(),
     currency: z.string().default("USD"),
+    customFields: z.record(z.unknown()).optional(),
 });
 
 export type CatalogItemFormValues = z.infer<typeof catalogItemSchema>;

@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -61,6 +62,7 @@ import { createCompany } from "@/features/companies/actions/create-company";
 import { deleteCompany } from "@/features/companies/actions/delete-company";
 import { updateCompany } from "@/features/companies/actions/update-company";
 import { CompanyForm } from "@/features/companies/components/company-form";
+import type { CustomFieldDefinition } from "@/lib/custom-fields";
 import type { Company, companySchema } from "../types";
 
 type CompanyFormValues = z.infer<typeof companySchema>;
@@ -73,9 +75,10 @@ interface CompanyTableProps {
         total: number;
         totalPages: number;
     };
+    customFields: CustomFieldDefinition[];
 }
 
-export function CompanyTable({ data, meta }: CompanyTableProps) {
+export function CompanyTable({ data, meta, customFields }: CompanyTableProps) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -278,7 +281,10 @@ export function CompanyTable({ data, meta }: CompanyTableProps) {
                 {viewMode === "list" ? (
                     <Table>
                         <TableHeader>
-                            <TableRow>
+                            <TableRow className="hover:bg-transparent">
+                                <TableHead className="w-10 pl-4">
+                                    <Checkbox />
+                                </TableHead>
                                 <TableHead>
                                     <Button
                                         variant="ghost"
@@ -338,13 +344,16 @@ export function CompanyTable({ data, meta }: CompanyTableProps) {
                         <TableBody>
                             {filteredData.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="h-24 text-center">
+                                    <TableCell colSpan={7} className="h-24 text-center">
                                         No companys found.
                                     </TableCell>
                                 </TableRow>
                             ) : (
                                 filteredData.map((company) => (
                                     <TableRow key={company.id}>
+                                        <TableCell className="pl-4">
+                                            <Checkbox />
+                                        </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-3">
                                                 <Avatar className="h-8 w-8">
@@ -495,25 +504,40 @@ export function CompanyTable({ data, meta }: CompanyTableProps) {
 
             {/* Add Company Sheet */}
             <Sheet open={isAddOpen} onOpenChange={setIsAddOpen}>
-                <SheetContent className="sm:max-w-xl overflow-y-auto">
-                    <SheetHeader>
-                        <SheetTitle>Create Company</SheetTitle>
-                        <SheetDescription>
-                            Add a new company to your system. Fill in the company details.
+                <SheetContent className="flex flex-col p-0">
+                    <SheetHeader className="px-6 pt-6 pb-4 border-b">
+                        <SheetTitle className="text-xl font-semibold">Add Company</SheetTitle>
+                        <SheetDescription className="text-sm">
+                            Add a new company to your system.
                         </SheetDescription>
                     </SheetHeader>
-                    <div className="mt-6">
-                        <CompanyForm onSubmit={handleCreate} isSubmitting={isPending} />
-                        <div className="flex justify-end gap-3 mt-6">
+                    <div className="flex-1 overflow-y-auto px-6 py-6">
+                        <CompanyForm
+                            onSubmit={handleCreate}
+                            customFields={customFields}
+                            isSubmitting={isPending}
+                        />
+                    </div>
+                    <div className="border-t px-6 py-4 bg-background">
+                        <div className="flex justify-end gap-2">
                             <Button
+                                type="button"
                                 variant="outline"
                                 onClick={() => setIsAddOpen(false)}
-                                disabled={isPending}
                             >
                                 Cancel
                             </Button>
-                            <Button type="submit" form="company-form" disabled={isPending}>
-                                {isPending ? "Creating..." : "Create Company"}
+                            <Button
+                                type="submit"
+                                disabled={isPending}
+                                onClick={() => {
+                                    const form = document.querySelector(
+                                        'form'
+                                    ) as HTMLFormElement;
+                                    form?.requestSubmit();
+                                }}
+                            >
+                                {isPending ? "Saving..." : "Save"}
                             </Button>
                         </div>
                     </div>
@@ -522,15 +546,15 @@ export function CompanyTable({ data, meta }: CompanyTableProps) {
 
             {/* Edit Company Sheet */}
             <Sheet open={!!editingItem} onOpenChange={() => setEditingItem(null)}>
-                <SheetContent className="sm:max-w-xl overflow-y-auto">
-                    <SheetHeader>
-                        <SheetTitle>Edit Company</SheetTitle>
-                        <SheetDescription>
-                            Make changes to the company. Click save when you're done.
+                <SheetContent className="flex flex-col p-0">
+                    <SheetHeader className="px-6 pt-6 pb-4 border-b">
+                        <SheetTitle className="text-xl font-semibold">Edit Company</SheetTitle>
+                        <SheetDescription className="text-sm">
+                            Make changes to the company here.
                         </SheetDescription>
                     </SheetHeader>
-                    {editingItem && (
-                        <div className="mt-6">
+                    <div className="flex-1 overflow-y-auto px-6 py-6">
+                        {editingItem && (
                             <CompanyForm
                                 defaultValues={{
                                     name: editingItem.name,
@@ -544,24 +568,37 @@ export function CompanyTable({ data, meta }: CompanyTableProps) {
                                     country: editingItem.country || "",
                                     postalCode: editingItem.postalCode || "",
                                     tags: editingItem.tags || [],
+                                    customFields: editingItem.customFields || {},
                                 }}
                                 onSubmit={handleUpdate}
+                                customFields={customFields}
                                 isSubmitting={isPending}
                             />
-                            <div className="flex justify-end gap-3 mt-6">
-                                <Button
-                                    variant="outline"
-                                    onClick={() => setEditingItem(null)}
-                                    disabled={isPending}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button type="submit" form="company-form" disabled={isPending}>
-                                    {isPending ? "Saving..." : "Save Changes"}
-                                </Button>
-                            </div>
+                        )}
+                    </div>
+                    <div className="border-t px-6 py-4 bg-background">
+                        <div className="flex justify-end gap-2">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setEditingItem(null)}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={isPending}
+                                onClick={() => {
+                                    const form = document.querySelector(
+                                        'form'
+                                    ) as HTMLFormElement;
+                                    form?.requestSubmit();
+                                }}
+                            >
+                                {isPending ? "Saving..." : "Save"}
+                            </Button>
                         </div>
-                    )}
+                    </div>
                 </SheetContent>
             </Sheet>
 

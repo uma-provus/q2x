@@ -21,13 +21,15 @@ export default async function SettingsGeneralPage() {
     }
 
     return (
-        <div className="space-y-6">
-            <TenantSettingsForm
-                initialData={{
-                    name: tenant.name,
-                    slug: tenant.slug,
-                }}
-            />
+        <div className="px-8 py-6 max-w-4xl">
+            <div className="space-y-6">
+                <TenantSettingsForm
+                    initialData={{
+                        name: tenant.name,
+                        slug: tenant.slug,
+                    }}
+                />
+            </div>
         </div>
     );
 }

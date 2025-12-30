@@ -1,6 +1,7 @@
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
     boolean,
+    integer,
     jsonb,
     pgTable,
     text,
@@ -12,8 +13,6 @@ export const tenants = pgTable("tenants", {
     id: uuid("id").defaultRandom().primaryKey(),
     name: text("name").notNull(),
     slug: text("slug").notNull().unique(),
-    catalogSchema: jsonb("catalog_schema"),
-    quoteSettings: jsonb("quote_settings"),
     notificationSettings: jsonb("notification_settings"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -37,7 +36,7 @@ export const users = pgTable(
     },
     (table) => ({
         tenantEmailUnique: sql`UNIQUE (${table.tenantId}, ${table.email})`,
-    })
+    }),
 );
 
 export const roles = pgTable("roles", {
@@ -65,7 +64,7 @@ export const userRoles = pgTable(
     },
     (table) => ({
         pk: sql`PRIMARY KEY (${table.tenantId}, ${table.userId}, ${table.roleId})`,
-    })
+    }),
 );
 
 export const catalogItems = pgTable("catalog_items", {
@@ -146,3 +145,108 @@ export const quotes = pgTable("quotes", {
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+// Tenant custom fields and option sets
+export const tenantOptionSets = pgTable(
+    "tenant_option_sets",
+    {
+        id: uuid("id").defaultRandom().primaryKey(),
+        tenantId: uuid("tenant_id")
+            .references(() => tenants.id)
+            .notNull(),
+        name: text("name").notNull(), // e.g. "catalog_item_type", "quote_status"
+        entityType: text("entity_type"), // optional, for organization
+        createdAt: timestamp("created_at").defaultNow().notNull(),
+        updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    },
+    (table) => ({
+        tenantNameUnique: sql`UNIQUE (${table.tenantId}, ${table.name})`,
+    }),
+);
+
+export const tenantOptionSetOptions = pgTable(
+    "tenant_option_set_options",
+    {
+        id: uuid("id").defaultRandom().primaryKey(),
+        optionSetId: uuid("option_set_id")
+            .references(() => tenantOptionSets.id)
+            .notNull(),
+        optionKey: text("option_key").notNull(), // stable key: "product", "draft", etc
+        label: text("label").notNull(), // tenant-changeable display label
+        description: text("description"),
+        color: text("color"), // optional color for UI display
+        sortOrder: integer("sort_order").default(0).notNull(),
+        isActive: boolean("is_active").default(true).notNull(),
+        createdAt: timestamp("created_at").defaultNow().notNull(),
+        updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    },
+    (table) => ({
+        optionSetKeyUnique: sql`UNIQUE (${table.optionSetId}, ${table.optionKey})`,
+    }),
+);
+
+export const tenantFieldDefinitions = pgTable(
+    "tenant_field_definitions",
+    {
+        id: uuid("id").defaultRandom().primaryKey(),
+        tenantId: uuid("tenant_id")
+            .references(() => tenants.id)
+            .notNull(),
+        entityType: text("entity_type").notNull(), // "company" | "contact" | "catalog_item" | "quote"
+        fieldKey: text("field_key").notNull(), // stable snake_case, immutable
+        label: text("label").notNull(),
+        description: text("description"),
+        dataType: text("data_type").notNull(), // "string","number","boolean","date","datetime","currency","email","phone","url","longtext","json","enum","multienum"
+        required: boolean("required").default(false).notNull(),
+        searchable: boolean("searchable").default(false).notNull(),
+        optionSetId: uuid("option_set_id").references(() => tenantOptionSets.id), // required for enum/multienum
+        defaultValue: jsonb("default_value"),
+        uiConfig: jsonb("ui_config"), // placeholder, columnWidth, helpText, etc.
+        isArchived: boolean("is_archived").default(false).notNull(),
+        createdAt: timestamp("created_at").defaultNow().notNull(),
+        updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    },
+    (table) => ({
+        tenantEntityFieldUnique: sql`UNIQUE (${table.tenantId}, ${table.entityType}, ${table.fieldKey})`,
+        enumOptionSetCheck: sql`CHECK (
+            (${table.dataType} IN ('enum', 'multienum') AND ${table.optionSetId} IS NOT NULL) OR
+            (${table.dataType} NOT IN ('enum', 'multienum'))
+        )`,
+    }),
+);
+
+// Relations
+export const tenantOptionSetsRelations = relations(
+    tenantOptionSets,
+    ({ one, many }) => ({
+        tenant: one(tenants, {
+            fields: [tenantOptionSets.tenantId],
+            references: [tenants.id],
+        }),
+        options: many(tenantOptionSetOptions),
+    }),
+);
+
+export const tenantOptionSetOptionsRelations = relations(
+    tenantOptionSetOptions,
+    ({ one }) => ({
+        optionSet: one(tenantOptionSets, {
+            fields: [tenantOptionSetOptions.optionSetId],
+            references: [tenantOptionSets.id],
+        }),
+    }),
+);
+
+export const tenantFieldDefinitionsRelations = relations(
+    tenantFieldDefinitions,
+    ({ one }) => ({
+        tenant: one(tenants, {
+            fields: [tenantFieldDefinitions.tenantId],
+            references: [tenants.id],
+        }),
+        optionSet: one(tenantOptionSets, {
+            fields: [tenantFieldDefinitions.optionSetId],
+            references: [tenantOptionSets.id],
+        }),
+    }),
+);

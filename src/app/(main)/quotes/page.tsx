@@ -1,13 +1,11 @@
 import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { quotes, tenants } from "@/db/schema";
+import { quotes } from "@/db/schema";
 import { QuoteTable } from "@/features/quotes/components/quote-table";
-import {
-    DEFAULT_QUOTE_SETTINGS,
-    type QuoteSettings,
-} from "@/features/settings/types";
 import { auth } from "@/lib/auth";
+import { getCustomFieldsForEntity } from "@/lib/custom-fields";
+import { loadQuoteSettings } from "@/lib/settings/load-settings";
 
 export default async function QuotesPage() {
     const session = await auth();
@@ -16,27 +14,14 @@ export default async function QuotesPage() {
         redirect("/login");
     }
 
-    const tenant = await db.query.tenants.findFirst({
-        where: eq(tenants.id, session.user.tenantId),
-    });
-
-    if (!tenant) {
-        redirect("/login");
-    }
-
-    const quoteSettings =
-        (tenant.quoteSettings as QuoteSettings) || DEFAULT_QUOTE_SETTINGS;
-
-    // Sort statuses by order
-    const sortedQuoteSettings = {
-        ...quoteSettings,
-        statuses: [...quoteSettings.statuses].sort((a, b) => a.order - b.order),
-    };
-
-    const allQuotes = await db.query.quotes.findMany({
-        where: eq(quotes.tenantId, session.user.tenantId),
-        orderBy: (quotes, { desc }) => [desc(quotes.createdAt)],
-    });
+    const [allQuotes, quoteSettings, customFields] = await Promise.all([
+        db.query.quotes.findMany({
+            where: eq(quotes.tenantId, session.user.tenantId),
+            orderBy: (quotes, { desc }) => [desc(quotes.createdAt)],
+        }),
+        loadQuoteSettings(session.user.tenantId),
+        getCustomFieldsForEntity(session.user.tenantId, "quote"),
+    ]);
 
     // Pagination
     const page = 1;
@@ -47,14 +32,15 @@ export default async function QuotesPage() {
     return (
         <div className="flex flex-col gap-4">
             <QuoteTable
-                data={allQuotes}
+                data={allQuotes.map(q => ({ ...q, customFields: q.customFields as Record<string, unknown> | null }))}
                 meta={{
                     page,
                     pageSize,
                     total,
                     totalPages,
                 }}
-                settings={sortedQuoteSettings}
+                settings={quoteSettings}
+                customFields={customFields}
             />
         </div>
     );

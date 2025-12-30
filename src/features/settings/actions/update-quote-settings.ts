@@ -1,9 +1,9 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { tenants } from "@/db/schema";
+import { tenantOptionSetOptions, tenantOptionSets } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { type QuoteSettings, quoteSettingsSchema } from "../types";
 
@@ -19,16 +19,36 @@ export async function updateQuoteSettings(data: QuoteSettings) {
             return { error: "Invalid settings data" };
         }
 
-        await db
-            .update(tenants)
-            .set({
-                quoteSettings: validated.data,
-                updatedAt: new Date(),
-            })
-            .where(eq(tenants.id, session.user.tenantId));
+        // Update statuses in quote_status option set
+        const statusSet = await db.query.tenantOptionSets.findFirst({
+            where: and(
+                eq(tenantOptionSets.tenantId, session.user.tenantId),
+                eq(tenantOptionSets.name, "quote_status"),
+            ),
+        });
+
+        if (statusSet) {
+            // Update existing options
+            for (const status of validated.data.statuses) {
+                await db
+                    .update(tenantOptionSetOptions)
+                    .set({
+                        label: status.name,
+                        color: status.color,
+                        sortOrder: status.order,
+                    })
+                    .where(
+                        and(
+                            eq(tenantOptionSetOptions.optionSetId, statusSet.id),
+                            eq(tenantOptionSetOptions.optionKey, status.key),
+                        ),
+                    );
+            }
+        }
 
         revalidatePath("/settings/customize");
         revalidatePath("/settings");
+        revalidatePath("/quotes");
         return { success: true };
     } catch (error) {
         console.error("Failed to update quote settings:", error);

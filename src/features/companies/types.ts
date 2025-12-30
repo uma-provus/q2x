@@ -9,6 +9,11 @@ export const companySchema = z.object({
     country: z.string().optional(),
     postalCode: z.string().optional(),
     tags: z.array(z.string()).optional(),
+    customFields: z.record(z.unknown()).optional(),
+    // TODO: These fields don't exist in the database yet
+    email: z.string().optional(),
+    phone: z.string().optional(),
+    company: z.string().optional(),
 });
 
 export type Company = {
@@ -25,4 +30,9 @@ export type Company = {
     customFields: Record<string, unknown> | null;
     createdAt: Date;
     updatedAt: Date;
+    // TODO: These fields don't exist in the database yet
+    // They're referenced in the UI but need migration
+    email?: string | null;
+    phone?: string | null;
+    company?: string | null;
 };

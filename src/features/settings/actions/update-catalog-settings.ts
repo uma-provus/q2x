@@ -1,9 +1,9 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { tenants } from "@/db/schema";
+import { tenantOptionSetOptions, tenantOptionSets } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { type CatalogSettings, catalogSettingsSchema } from "../types";
 
@@ -21,14 +21,58 @@ export async function updateCatalogSettings(data: CatalogSettings) {
     }
 
     try {
-        await db
-            .update(tenants)
-            .set({
-                catalogSchema: parsed.data,
-            })
-            .where(eq(tenants.id, session.user.tenantId));
+        // Update types in catalog_item_type option set
+        const typeSet = await db.query.tenantOptionSets.findFirst({
+            where: and(
+                eq(tenantOptionSets.tenantId, session.user.tenantId),
+                eq(tenantOptionSets.name, "catalog_item_type"),
+            ),
+        });
 
-        revalidatePath("/settings/general");
+        if (typeSet) {
+            // Update existing options
+            for (const type of parsed.data.types) {
+                await db
+                    .update(tenantOptionSetOptions)
+                    .set({
+                        label: type.name,
+                        color: type.color,
+                    })
+                    .where(
+                        and(
+                            eq(tenantOptionSetOptions.optionSetId, typeSet.id),
+                            eq(tenantOptionSetOptions.optionKey, type.key),
+                        ),
+                    );
+            }
+        }
+
+        // Update unit types in catalog_item_unit option set
+        const unitSet = await db.query.tenantOptionSets.findFirst({
+            where: and(
+                eq(tenantOptionSets.tenantId, session.user.tenantId),
+                eq(tenantOptionSets.name, "catalog_item_unit"),
+            ),
+        });
+
+        if (unitSet) {
+            // Update existing options
+            for (const unit of parsed.data.unitTypes) {
+                await db
+                    .update(tenantOptionSetOptions)
+                    .set({
+                        label: unit.name,
+                    })
+                    .where(
+                        and(
+                            eq(tenantOptionSetOptions.optionSetId, unitSet.id),
+                            eq(tenantOptionSetOptions.optionKey, unit.key),
+                        ),
+                    );
+            }
+        }
+
+        revalidatePath("/catalogs");
         return { success: true };
     } catch (error) {
         console.error("Failed to update catalog settings:", error);

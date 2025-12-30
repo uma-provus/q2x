@@ -38,15 +38,19 @@ import type { CatalogSettings } from "@/features/settings/types";
 const navItems = [
     { name: "Catalog Types", icon: Type, id: "types" },
     { name: "Unit Types", icon: Layers, id: "units" },
-    { name: "Custom Fields", icon: Settings, id: "fields" },
 ];
 
 interface CatalogConfigDialogProps {
     settings: CatalogSettings;
+    tenantId: string;
     children?: React.ReactNode;
 }
 
-export function CatalogConfigDialog({ settings, children }: CatalogConfigDialogProps) {
+export function CatalogConfigDialog({
+    settings,
+    tenantId,
+    children,
+}: CatalogConfigDialogProps) {
     const [open, setOpen] = useState(false);
     const [activeSection, setActiveSection] = useState("types");
 
@@ -111,22 +115,6 @@ export function CatalogConfigDialog({ settings, children }: CatalogConfigDialogP
                             )}
                             {activeSection === "units" && (
                                 <UnitTypesSection settings={settings} />
-                            )}
-                            {activeSection === "fields" && (
-                                <div className="space-y-4">
-                                    <div>
-                                        <h3 className="text-lg font-medium">Custom Fields</h3>
-                                        <p className="text-sm text-muted-foreground">
-                                            Add custom fields to your catalog items for additional
-                                            information.
-                                        </p>
-                                    </div>
-                                    <div className="rounded-lg border border-dashed p-8 text-center">
-                                        <p className="text-sm text-muted-foreground">
-                                            Custom fields feature coming soon
-                                        </p>
-                                    </div>
-                                </div>
                             )}
                         </div>
                     </main>

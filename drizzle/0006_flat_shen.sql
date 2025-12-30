@@ -1,0 +1,1 @@
+ALTER TABLE "tenant_option_set_options" ADD COLUMN "color" text;

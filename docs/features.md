@@ -39,8 +39,22 @@ This document tracks the implementation status of features in the project. AI ag
 
 ## 5. Catalog
 - 📝 **Catalog Item CRUD**: Manage SKUs, prices, descriptions.
-- 📝 **Custom Fields**: Support for extending schema via JSON.
+- ✅ **Custom Fields**: Tenant-scoped custom fields with validation.
+- ✅ **Renameable Option Sets**: Built-in type validation with renameable labels.
 - 📝 **Schema Configuration**: UI to define custom fields (Tenant settings).
+
+## 5a. Custom Fields System (NEW)
+- ✅ **Database Schema**: `tenant_field_definitions`, `tenant_option_sets`, `tenant_option_set_options` tables.
+- ✅ **Field Types**: Support for string, number, boolean, date, datetime, currency, email, phone, url, longtext, json, enum, multienum.
+- ✅ **Validation Module**: Comprehensive validation with structured error messages.
+- ✅ **Admin APIs**: Full CRUD for custom fields and option sets.
+- ✅ **Entity Integration**: Validation integrated into all entity actions (companies, contacts, catalog_items, quotes).
+- ✅ **Built-in Field Validation**: `catalog_items.type` and `quotes.status` validated against tenant option sets.
+- ✅ **Default Option Sets**: Seeded `catalog_item_type` and `quote_status` for each tenant.
+- 📝 **Admin UI**: Interface for managing custom fields and option sets.
+- 📝 **Dynamic Forms**: Render forms based on field definitions.
+
+See [Custom Fields Documentation](./custom-fields.md) for complete details.
 
 ## 6. Quotes (Core Feature)
 - 📝 **Quote Builder**: Header + Lines management.

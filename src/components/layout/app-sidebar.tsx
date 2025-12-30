@@ -6,7 +6,6 @@ import {
   LayoutDashboard,
   Package2,
   Settings,
-  UserRound,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -40,20 +39,11 @@ export function AppSidebar({
       href: "/dashboard",
       active: pathname === "/dashboard",
     },
-  ];
-
-  const crmRoutes = [
     {
       label: "Companies",
       icon: Building2,
       href: "/companies",
       active: pathname.startsWith("/companies"),
-    },
-    {
-      label: "Contacts",
-      icon: UserRound,
-      href: "/contacts",
-      active: pathname.startsWith("/contacts"),
     },
   ];
 
@@ -106,24 +96,6 @@ export function AppSidebar({
           <SidebarGroupContent>
             <SidebarMenu>
               {dashboardRoutes.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton asChild isActive={item.active}>
-                    <Link href={item.href}>
-                      <item.icon strokeWidth={2.5} />
-                      <span>{item.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>CRM</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {crmRoutes.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton asChild isActive={item.active}>
                     <Link href={item.href}>

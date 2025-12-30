@@ -9,6 +9,7 @@ export const contactSchema = z.object({
     title: z.string().optional(),
     isPrimary: z.boolean().optional(),
     tags: z.array(z.string()).optional(),
+    customFields: z.record(z.unknown()).optional(),
 });
 
 export type Contact = {

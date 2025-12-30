@@ -34,7 +34,6 @@ import type { QuoteSettings } from "@/features/settings/types";
 
 const navItems = [
     { name: "Quote Statuses", icon: FileText, id: "statuses" },
-    { name: "Custom Fields", icon: Settings, id: "fields" },
 ];
 
 interface QuoteConfigDialogProps {
@@ -104,22 +103,6 @@ export function QuoteConfigDialog({ settings, children }: QuoteConfigDialogProps
                         <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
                             {activeSection === "statuses" && (
                                 <QuoteStatusesSection initialData={settings} />
-                            )}
-                            {activeSection === "fields" && (
-                                <div className="space-y-4">
-                                    <div>
-                                        <h3 className="text-lg font-medium">Custom Fields</h3>
-                                        <p className="text-sm text-muted-foreground">
-                                            Add custom fields to your quotes for additional
-                                            information.
-                                        </p>
-                                    </div>
-                                    <div className="rounded-lg border border-dashed p-8 text-center">
-                                        <p className="text-sm text-muted-foreground">
-                                            Custom fields feature coming soon
-                                        </p>
-                                    </div>
-                                </div>
                             )}
                         </div>
                     </main>

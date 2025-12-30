@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
+import { CustomFieldsFormSection } from "@/components/custom-fields-form-section";
 import {
     Form,
     FormControl,
@@ -21,12 +21,14 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import type { CatalogSettings } from "@/features/settings/types";
+import type { CustomFieldDefinition } from "@/lib/custom-fields";
 import { type CatalogItemFormValues, catalogItemSchema } from "../schema";
 
 interface CatalogFormProps {
     defaultValues?: Partial<CatalogItemFormValues>;
     onSubmit: (data: CatalogItemFormValues) => Promise<void>;
     settings: CatalogSettings;
+    customFields?: CustomFieldDefinition[];
     isSubmitting?: boolean;
 }
 
@@ -34,9 +36,10 @@ export function CatalogForm({
     defaultValues,
     onSubmit,
     settings,
-    isSubmitting,
+    customFields = [],
+    isSubmitting: _isSubmitting,
 }: CatalogFormProps) {
-    const form = useForm<CatalogItemFormValues>({
+    const form = useForm({
         resolver: zodResolver(catalogItemSchema),
         defaultValues: {
             name: "",
@@ -47,9 +50,18 @@ export function CatalogForm({
             unitType: "",
             tags: [],
             currency: "USD",
+            customFields: {},
             ...defaultValues,
         },
-    });
+    }) as ReturnType<typeof useForm<CatalogItemFormValues>>;
+
+    const handleCustomFieldChange = (fieldKey: string, value: unknown) => {
+        const currentCustomFields = form.getValues("customFields") || {};
+        form.setValue("customFields", {
+            ...currentCustomFields,
+            [fieldKey]: value,
+        });
+    };
 
     return (
         <Form {...form}>
@@ -180,6 +192,11 @@ export function CatalogForm({
                     )}
                 />
 
+                <CustomFieldsFormSection
+                    fields={customFields}
+                    values={form.watch("customFields") || {}}
+                    onChange={handleCustomFieldChange}
+                />
             </form>
         </Form>
     );
