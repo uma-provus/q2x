@@ -24,21 +24,23 @@ export default async function CustomFieldsPage() {
     ]);
 
     return (
-        <div className="space-y-6">
-            <div>
-                <h3 className="text-lg font-medium">Custom Fields</h3>
-                <p className="text-muted-foreground text-sm">
-                    Define custom fields to capture additional information for your
-                    business objects.
-                </p>
+        <div className="px-8 py-6 max-w-4xl">
+            <div className="space-y-6">
+                <div>
+                    <h1 className="text-xl font-semibold">Custom Fields</h1>
+                    <p className="text-sm text-muted-foreground mt-1">
+                        Define custom fields to capture additional information for your
+                        business objects
+                    </p>
+                </div>
+                <CustomFieldsSettings
+                    tenantId={session.user.tenantId}
+                    companyFields={companyFields}
+                    contactFields={contactFields}
+                    catalogItemFields={catalogItemFields}
+                    quoteFields={quoteFields}
+                />
             </div>
-            <CustomFieldsSettings
-                tenantId={session.user.tenantId}
-                companyFields={companyFields}
-                contactFields={contactFields}
-                catalogItemFields={catalogItemFields}
-                quoteFields={quoteFields}
-            />
         </div>
     );
 }

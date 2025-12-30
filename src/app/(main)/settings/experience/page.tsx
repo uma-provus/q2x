@@ -37,9 +37,12 @@ export default function ExperiencePage() {
     if (!mounted) {
         return (
             <div className="px-8 py-6 max-w-4xl">
-                <div className="space-y-8">
+                <div className="space-y-6">
                     <div>
                         <h1 className="text-xl font-semibold">Experience</h1>
+                        <p className="text-sm text-muted-foreground mt-1">
+                            Customize your workspace appearance and preferences
+                        </p>
                     </div>
                     <div className="space-y-6">
                         <div>
@@ -73,9 +76,12 @@ export default function ExperiencePage() {
 
     return (
         <div className="px-8 py-6 max-w-4xl">
-            <div className="space-y-8">
+            <div className="space-y-6">
                 <div>
                     <h1 className="text-xl font-semibold">Experience</h1>
+                    <p className="text-sm text-muted-foreground mt-1">
+                        Customize your workspace appearance and preferences
+                    </p>
                 </div>
 
                 <div className="space-y-6">

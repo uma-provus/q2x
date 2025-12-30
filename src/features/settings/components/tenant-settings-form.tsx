@@ -37,12 +37,6 @@ export function TenantSettingsForm({ initialData }: TenantSettingsFormProps) {
     return (
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="space-y-4">
-                <div>
-                    <h3 className="text-lg font-medium">Organization Profile</h3>
-                    <p className="text-sm text-muted-foreground">
-                        Manage your organization's public profile and settings.
-                    </p>
-                </div>
                 <div className="grid gap-4 max-w-xl">
                     <Field>
                         <FieldLabel>Organization Name</FieldLabel>

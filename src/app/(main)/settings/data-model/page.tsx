@@ -45,7 +45,7 @@ export default async function DataModelPage() {
         <div className="px-8 py-6 max-w-4xl">
             <div className="space-y-6">
                 <div>
-                    <h1 className="text-xl font-semibold">Data model</h1>
+                    <h1 className="text-xl font-semibold">Data Model</h1>
                     <p className="text-sm text-muted-foreground mt-1">
                         Customize fields for your business objects
                     </p>
